@@ -1,8 +1,7 @@
-package com.josegusthavo.sistema_academico.dto.academico;
+package com.josegusthavo.sistema_academico.dto.nota;
 
 import lombok.Builder;
 import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -11,6 +10,8 @@ import java.time.LocalDate;
 public class NotaResponseDTO {
     private Long id;
     private Long matriculaTurmaId;
+    private String nomeAluno;
+    private String turmaDescricao;
     private String descricao;
     private BigDecimal valor;
     private BigDecimal peso;

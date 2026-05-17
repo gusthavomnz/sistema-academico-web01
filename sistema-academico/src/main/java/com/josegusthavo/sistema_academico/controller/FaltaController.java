@@ -1,7 +1,7 @@
 package com.josegusthavo.sistema_academico.controller;
 
-import com.josegusthavo.sistema_academico.dto.academico.FaltaRequestDTO;
-import com.josegusthavo.sistema_academico.dto.academico.FaltaResponseDTO;
+import com.josegusthavo.sistema_academico.dto.falta.FaltaRequestDTO;
+import com.josegusthavo.sistema_academico.dto.falta.FaltaResponseDTO;
 import com.josegusthavo.sistema_academico.service.FaltaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

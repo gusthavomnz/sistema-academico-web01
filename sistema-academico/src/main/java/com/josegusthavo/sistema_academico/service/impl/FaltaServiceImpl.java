@@ -1,9 +1,10 @@
 package com.josegusthavo.sistema_academico.service.impl;
 
-import com.josegusthavo.sistema_academico.dto.academico.FaltaRequestDTO;
-import com.josegusthavo.sistema_academico.dto.academico.FaltaResponseDTO;
+import com.josegusthavo.sistema_academico.dto.falta.FaltaRequestDTO;
+import com.josegusthavo.sistema_academico.dto.falta.FaltaResponseDTO;
 import com.josegusthavo.sistema_academico.model.Falta;
 import java.util.ArrayList;
+
 import com.josegusthavo.sistema_academico.model.MatriculaTurma;
 import com.josegusthavo.sistema_academico.model.PerfilEnum;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,8 @@ public class FaltaServiceImpl implements FaltaService {
 
     private void validarAcessoProfessor(Long usuarioId, Long turmaId) {
         usuarioService.validarPermissao(usuarioId, PerfilEnum.PROFESSOR, PerfilEnum.COORDENADOR);
-        if (turmaService.isProfessorDaTurma(usuarioId, turmaId) == false) {
+        if (usuarioService.buscarPorId(usuarioId).getPerfil() == PerfilEnum.PROFESSOR
+                && !turmaService.isProfessorDaTurma(usuarioId, turmaId)) {
             throw new RuntimeException("Acesso negado: Você só pode gerenciar faltas de suas próprias turmas.");
         }
     }
@@ -50,11 +52,6 @@ public class FaltaServiceImpl implements FaltaService {
     }
 
     @Override
-    public List<Falta> findByMatriculaTurmaId(Long matriculaTurmaId) {
-        return faltaRepository.findByMatriculaTurmaId(matriculaTurmaId);
-    }
-
-    @Override
     public List<FaltaResponseDTO> listarFaltasNaTurma(Long usuarioId, Long turmaId) {
         usuarioService.validarPermissao(usuarioId, PerfilEnum.ALUNO, PerfilEnum.COORDENADOR);
         MatriculaTurma matricula = matriculaTurmaService.buscarPorAlunoETurma(usuarioId, turmaId);
@@ -63,6 +60,12 @@ public class FaltaServiceImpl implements FaltaService {
             resultado.add(faltaMapper.toResponseDTO(falta));
         }
         return resultado;
+    }
+
+    @Override
+    public int contarFaltasPorMatricula(Long matriculaTurmaId) {
+        return faltaRepository.findByMatriculaTurmaId(matriculaTurmaId)
+                .stream().mapToInt(f -> f.getQuantidade()).sum();
     }
 
     @Override

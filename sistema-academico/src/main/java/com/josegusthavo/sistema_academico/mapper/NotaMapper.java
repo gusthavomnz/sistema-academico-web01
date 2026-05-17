@@ -1,7 +1,8 @@
 package com.josegusthavo.sistema_academico.mapper;
 
-import com.josegusthavo.sistema_academico.dto.academico.NotaRequestDTO;
-import com.josegusthavo.sistema_academico.dto.academico.NotaResponseDTO;
+import com.josegusthavo.sistema_academico.dto.boletim.BoletimNotaDTO;
+import com.josegusthavo.sistema_academico.dto.nota.NotaRequestDTO;
+import com.josegusthavo.sistema_academico.dto.nota.NotaResponseDTO;
 import com.josegusthavo.sistema_academico.model.MatriculaTurma;
 import com.josegusthavo.sistema_academico.model.Nota;
 import org.springframework.stereotype.Component;
@@ -26,10 +27,21 @@ public class NotaMapper {
         nota.setDataAvaliacao(request.getDataAvaliacao());
     }
 
+    public BoletimNotaDTO toBoletimNotaDTO(Nota nota) {
+        return BoletimNotaDTO.builder()
+                .descricao(nota.getDescricao())
+                .valor(nota.getValor())
+                .peso(nota.getPeso())
+                .dataAvaliacao(nota.getDataAvaliacao())
+                .build();
+    }
+
     public NotaResponseDTO toResponseDTO(Nota nota) {
         return NotaResponseDTO.builder()
                 .id(nota.getId())
                 .matriculaTurmaId(nota.getMatriculaTurma().getId())
+                .nomeAluno(nota.getMatriculaTurma().getAluno().getUsuario().getNome())
+                .turmaDescricao(nota.getMatriculaTurma().getTurma().getDescricao())
                 .descricao(nota.getDescricao())
                 .valor(nota.getValor())
                 .peso(nota.getPeso())

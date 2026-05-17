@@ -1,12 +1,11 @@
 package com.josegusthavo.sistema_academico.service.impl;
 
 import com.josegusthavo.sistema_academico.dto.boletim.BoletimDisciplinaDTO;
+import com.josegusthavo.sistema_academico.dto.boletim.BoletimNotaDTO;
 import com.josegusthavo.sistema_academico.dto.boletim.BoletimPeriodoDTO;
 import com.josegusthavo.sistema_academico.dto.boletim.BoletimResponseDTO;
 import com.josegusthavo.sistema_academico.mapper.BoletimMapper;
-import com.josegusthavo.sistema_academico.model.Falta;
 import com.josegusthavo.sistema_academico.model.MatriculaTurma;
-import com.josegusthavo.sistema_academico.model.Nota;
 import com.josegusthavo.sistema_academico.model.PerfilEnum;
 import com.josegusthavo.sistema_academico.model.PeriodoLetivo;
 import lombok.RequiredArgsConstructor;
@@ -68,9 +67,9 @@ public class BoletimServiceImpl implements BoletimService {
 
                 for (MatriculaTurma m : matriculas) {
                     if (m.getTurma().getPeriodoLetivo().equals(periodoAtual)) {
-                        List<Nota> notasModel = notaService.findByMatriculaTurmaId(m.getId());
-                        List<Falta> faltasModel = faltaService.findByMatriculaTurmaId(m.getId());
-                        disciplinasDTO.add(boletimMapper.toBoletimDisciplinaDTO(m, notasModel, faltasModel));
+                        List<BoletimNotaDTO> notas = notaService.buscarNotasParaBoletim(m.getId());
+                        int totalFaltas = faltaService.contarFaltasPorMatricula(m.getId());
+                        disciplinasDTO.add(boletimMapper.toBoletimDisciplinaDTO(m, notas, totalFaltas));
                     }
                 }
 

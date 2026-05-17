@@ -1,13 +1,15 @@
 package com.josegusthavo.sistema_academico.service.impl;
 
-import com.josegusthavo.sistema_academico.dto.academico.NotaRequestDTO;
-import com.josegusthavo.sistema_academico.dto.academico.NotaResponseDTO;
+import com.josegusthavo.sistema_academico.dto.boletim.BoletimNotaDTO;
+import com.josegusthavo.sistema_academico.dto.nota.NotaRequestDTO;
+import com.josegusthavo.sistema_academico.dto.nota.NotaResponseDTO;
 import com.josegusthavo.sistema_academico.model.MatriculaTurma;
 import com.josegusthavo.sistema_academico.model.Nota;
 import java.util.ArrayList;
 import com.josegusthavo.sistema_academico.model.PerfilEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.josegusthavo.sistema_academico.mapper.NotaMapper;
 import com.josegusthavo.sistema_academico.repository.NotaRepository;
 import com.josegusthavo.sistema_academico.service.MatriculaTurmaService;
@@ -29,7 +31,8 @@ public class NotaServiceImpl implements NotaService {
 
     private void validarAcessoProfessor(Long usuarioId, Long turmaId) {
         usuarioService.validarPermissao(usuarioId, PerfilEnum.PROFESSOR, PerfilEnum.COORDENADOR);
-        if (turmaService.isProfessorDaTurma(usuarioId, turmaId) == false) {
+        if (usuarioService.buscarPorId(usuarioId).getPerfil() == PerfilEnum.PROFESSOR
+                && !turmaService.isProfessorDaTurma(usuarioId, turmaId)) {
             throw new RuntimeException("Acesso negado: Você só pode gerenciar notas de suas próprias turmas.");
         }
     }
@@ -50,11 +53,7 @@ public class NotaServiceImpl implements NotaService {
     }
 
     @Override
-    public List<Nota> findByMatriculaTurmaId(Long matriculaTurmaId) {
-        return notaRepository.findByMatriculaTurmaId(matriculaTurmaId);
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public List<NotaResponseDTO> listarNotasNaTurma(Long usuarioId, Long turmaId) {
         usuarioService.validarPermissao(usuarioId, PerfilEnum.ALUNO, PerfilEnum.COORDENADOR);
         MatriculaTurma matricula = matriculaTurmaService.buscarPorAlunoETurma(usuarioId, turmaId);
@@ -66,6 +65,7 @@ public class NotaServiceImpl implements NotaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<NotaResponseDTO> listarNotasDeMatricula(Long usuarioId, Long turmaId, Long matriculaTurmaId) {
         usuarioService.validarPermissao(usuarioId, PerfilEnum.PROFESSOR, PerfilEnum.COORDENADOR);
         if (usuarioService.buscarPorId(usuarioId).getPerfil() == PerfilEnum.PROFESSOR) {
@@ -78,5 +78,13 @@ public class NotaServiceImpl implements NotaService {
             resultado.add(notaMapper.toResponseDTO(nota));
         }
         return resultado;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BoletimNotaDTO> buscarNotasParaBoletim(Long matriculaTurmaId) {
+        return notaRepository.findByMatriculaTurmaId(matriculaTurmaId).stream()
+                .map(notaMapper::toBoletimNotaDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
 }

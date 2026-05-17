@@ -1,8 +1,7 @@
-package com.josegusthavo.sistema_academico.dto.academico;
+package com.josegusthavo.sistema_academico.dto.falta;
 
 import lombok.Builder;
 import lombok.Data;
-
 import java.time.LocalDate;
 
 @Data

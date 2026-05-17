@@ -1,7 +1,7 @@
 package com.josegusthavo.sistema_academico.controller;
 
-import com.josegusthavo.sistema_academico.dto.academico.NotaRequestDTO;
-import com.josegusthavo.sistema_academico.dto.academico.NotaResponseDTO;
+import com.josegusthavo.sistema_academico.dto.nota.NotaRequestDTO;
+import com.josegusthavo.sistema_academico.dto.nota.NotaResponseDTO;
 import com.josegusthavo.sistema_academico.service.NotaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

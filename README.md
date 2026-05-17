@@ -31,8 +31,8 @@ spring.datasource.password=sua_senha
 
 | Perfil | Acesso |
 |---|---|
-| `COORDENADOR` | Gerencia usuários, consulta dados de qualquer aluno |
-| `PROFESSOR` | Gerencia notas/faltas das suas turmas, acessa chat |
+| `COORDENADOR` | Gerencia usuários, gerencia notas/faltas de qualquer turma, consulta dados de qualquer aluno |
+| `PROFESSOR` | Gerencia notas/faltas das suas próprias turmas, acessa chat |
 | `ALUNO` | Visualiza próprios dados acadêmicos, acessa chat |
 
 ---
@@ -162,7 +162,7 @@ GET /api/turmas?usuarioId=2
 
 Resposta `200` (Carlos leciona apenas Turma 1):
 ```json
-[{"id": 1, "descricao": "Turma A - Fundamentos de Programação", "codigoSuap": "T-GRAD.3993-20241", "status": "A", "disciplina": {"id": 1, "nome": "FUNDAMENTOS DE PROGRAMAÇÃO", "codigoSuap": "GRAD.3993", "cargaHoraria": 120}, "periodoLetivo": {"id": 1, "ano": 2024, "semestre": 1, "descricao": "2024.1"}}]
+[{"id": 1, "descricao": "Turma A - Fundamentos de Programação", "codigoSuap": "T-GRAD.3993-20241", "status": "A", "disciplina": {"id": 1, "nome": "FUNDAMENTOS DE PROGRAMAÇÃO", "codigoSuap": "GRAD.3993", "cargaHoraria": 120}, "periodoLetivo": {"id": 1, "ano": 2024, "semestre": 1, "descricao": "2024.1"}, "professor": {"id": 1, "nome": "Carlos Eduardo Santana", "matriculaSiape": null}}]
 ```
 
 ---
@@ -178,7 +178,7 @@ GET /api/turmas/{turmaId}/matriculas/situacao?usuarioId=7
 
 Resposta `200`:
 ```json
-[{"id": 1, "situacao": "MATRICULADO", "dataMatricula": "2024-02-01", "status": "A", "aluno": {"id": 1, "matricula": "202410001", "suapId": "202410001", "status": "A", "usuario": {"id": 7, "nome": "José Menezes", "email": "jose.menezes064@academico.ifs.edu.br", "login": "jose.menezes064", "perfil": "ALUNO"}}}, {"id": 2, "situacao": "MATRICULADO", "dataMatricula": "2024-02-01", "status": "A", "aluno": {"id": 2, "matricula": "202410002", "suapId": "202410002", "status": "A", "usuario": {"id": 8, "nome": "Ana Beatriz Lima", "email": "ana.lima012@academico.ifs.edu.br", "login": "ana.lima012", "perfil": "ALUNO"}}}, {"id": 3, "situacao": "MATRICULADO", "dataMatricula": "2024-02-02", "status": "A", "aluno": {"id": 3, "matricula": "202410003", "suapId": "202410003", "status": "A", "usuario": {"id": 9, "nome": "Pedro Henrique Santos", "email": "pedro.santos089@academico.ifs.edu.br", "login": "pedro.santos089", "perfil": "ALUNO"}}}]
+[{"id": 1, "alunoId": 1, "nomeAluno": "José Menezes", "matriculaAluno": "202410001", "situacao": "MATRICULADO", "dataMatricula": "2024-02-01", "status": "A"}, {"id": 2, "alunoId": 2, "nomeAluno": "Ana Beatriz Lima", "matriculaAluno": "202410002", "situacao": "MATRICULADO", "dataMatricula": "2024-02-01", "status": "A"}, {"id": 3, "alunoId": 3, "nomeAluno": "Pedro Henrique Santos", "matriculaAluno": "202410003", "situacao": "MATRICULADO", "dataMatricula": "2024-02-02", "status": "A"}]
 ```
 
 **GET /api/turmas/1/matriculas/situacao?usuarioId=7** — requer ALUNO matriculado ou COORDENADOR
@@ -203,17 +203,17 @@ PUT  /api/turmas/{turmaId}/notas/{notaId}
 
 Resposta `200` (José tem 1 nota no seed — adicione mais via POST para expandir a lista):
 ```json
-[{"id": 1, "matriculaTurmaId": 1, "descricao": "Prova 1", "valor": 8.50, "peso": 1.00, "dataAvaliacao": "2024-04-15"}]
+[{"id": 1, "matriculaTurmaId": 1, "nomeAluno": "José Menezes", "turmaDescricao": "Turma A - Fundamentos de Programação", "descricao": "Prova 1", "valor": 8.50, "peso": 1.00, "dataAvaliacao": "2024-04-15"}]
 ```
 
 **GET /api/turmas/1/notas/matriculas/2?usuarioId=2** — professor lista notas de Ana Beatriz (matriculaTurmaId=2)
 
 Resposta `200`:
 ```json
-[{"id": 2, "matriculaTurmaId": 2, "descricao": "Prova 1", "valor": 9.00, "peso": 1.00, "dataAvaliacao": "2024-04-15"}]
+[{"id": 2, "matriculaTurmaId": 2, "nomeAluno": "Ana Beatriz Lima", "turmaDescricao": "Turma A - Fundamentos de Programação", "descricao": "Prova 1", "valor": 9.00, "peso": 1.00, "dataAvaliacao": "2024-04-15"}]
 ```
 
-**POST /api/turmas/1/notas** — requer PROFESSOR da turma
+**POST /api/turmas/1/notas** — requer PROFESSOR da turma ou COORDENADOR
 
 Envio:
 ```json
@@ -221,10 +221,10 @@ Envio:
 ```
 Resposta `201`:
 ```json
-{"id": 5, "matriculaTurmaId": 1, "descricao": "Prova 2", "valor": 7.00, "peso": 1.00, "dataAvaliacao": "2024-06-10"}
+{"id": 5, "matriculaTurmaId": 1, "nomeAluno": "José Menezes", "turmaDescricao": "Turma A - Fundamentos de Programação", "descricao": "Prova 2", "valor": 7.00, "peso": 1.00, "dataAvaliacao": "2024-06-10"}
 ```
 
-**PUT /api/turmas/1/notas/1** — requer PROFESSOR da turma. Resposta `204`
+**PUT /api/turmas/1/notas/1** — requer PROFESSOR da turma ou COORDENADOR. Resposta `204`
 
 Envio:
 ```json
@@ -256,7 +256,7 @@ Resposta `200`:
 [{"id": 2, "matriculaTurmaId": 5, "dataAula": "2024-03-15", "quantidade": 4, "justificativa": null}]
 ```
 
-**POST /api/turmas/1/faltas** — requer PROFESSOR da turma
+**POST /api/turmas/1/faltas** — requer PROFESSOR da turma ou COORDENADOR
 
 Envio:
 ```json
@@ -267,7 +267,7 @@ Resposta `201`:
 {"id": 4, "matriculaTurmaId": 1, "dataAula": "2024-05-20", "quantidade": 2, "justificativa": null}
 ```
 
-**PUT /api/turmas/1/faltas/1** — requer PROFESSOR da turma. Resposta `204`
+**PUT /api/turmas/1/faltas/1** — requer PROFESSOR da turma ou COORDENADOR. Resposta `204`
 
 Envio:
 ```json
@@ -287,7 +287,7 @@ GET /api/boletins/{alunoUsuarioId}?usuarioIdRequisitante=1
 
 Resposta `200`:
 ```json
-{"nomeAluno": "José Menezes", "matricula": "202410001", "periodos": [{"ano": 2024, "semestre": 1, "descricaoPeriodo": "2024.1", "disciplinas": [{"nomeDisciplina": "FUNDAMENTOS DE PROGRAMAÇÃO", "cargaHoraria": 120, "situacao": "MATRICULADO", "notas": [{"descricao": "Prova 1", "valor": 8.50, "peso": 1.00}], "totalFaltas": 2}, {"nomeDisciplina": "PARADIGMA ORIENTADO A OBJETOS", "cargaHoraria": 90, "situacao": "MATRICULADO", "notas": [{"descricao": "Projeto Prático", "valor": 10.00, "peso": 2.00}], "totalFaltas": 0}]}]}
+{"nomeAluno": "José Menezes", "matricula": "202410001", "periodos": [{"ano": 2024, "semestre": 1, "descricaoPeriodo": "2024.1", "disciplinas": [{"nomeDisciplina": "FUNDAMENTOS DE PROGRAMAÇÃO", "cargaHoraria": 120, "situacao": "MATRICULADO", "notas": [{"descricao": "Prova 1", "valor": 8.50, "peso": 1.00, "dataAvaliacao": "2024-04-15"}], "totalFaltas": 2}, {"nomeDisciplina": "PARADIGMA ORIENTADO A OBJETOS", "cargaHoraria": 90, "situacao": "MATRICULADO", "notas": [{"descricao": "Projeto Prático", "valor": 10.00, "peso": 2.00, "dataAvaliacao": null}], "totalFaltas": 0}]}]}
 ```
 
 **GET /api/boletins/7?usuarioIdRequisitante=1** — requer COORDENADOR. Resposta idêntica ao GET acima.
